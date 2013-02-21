@@ -16,7 +16,7 @@ from simpleCAMlib02 import *
 
 # set following parameters
 # filename = sys.argv[1]
-filename = "/home/tocs/4gary/play/3dSheetCam/cad/ideal/CTH.dxf" # Change to your dxf file
+filename = "/home/tocs/4gary/play/cam/CTH.dxf" # Change to your dxf file
 safeHeight = 0.25 # positive hieghts are above the work piece.
 straightFeedRate = 65.0 # set to a resonable feed rate. Inches/Minute
 
