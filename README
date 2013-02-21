@@ -1,0 +1,80 @@
+This is a simple and incomplete way to get a dxf into linuxCNC. There is lots to do but as it is useful to me I will keep working on it and it should be useful soon.
+
+Usage:
+	Create and save a dxf . Use circles lines, and lwpolylines (2D polylines, they are usually the defalt type of polyline). 
+
+	Edit "linuxCAM.py" with your own favorite text editor.
+	Change the following items:
+
+	     ++Near top of file:
+	       filename = "/home/username/someMorePath/someFilename.dxf"
+	       safeHeight = 0.25
+	       straightFeedRate = 65.0
+
+	     ++About line 50. Under/in "for e in dxf.ENTITIES.data:"
+	       startDepth = 0.0
+    	       endDepth = -0.25
+    	       stepDepth = -0.0625
+
+	Open linuxCNC.
+	In linuxCNC "File -> Open"
+	Select linuxCAM.py
+	Be amazed.
+
+Some notes on useage. I have been using DraftSight to draw DXFs. Other programs may or maynot work. Save files as Version 2000 DXF. Sometimes draftsight creates zero radius circles that cannot be seen or deleted in DraftSight. This will cause trouble. You can edit the DXF file and deleat the affending circle. Duplicate entities are also annoying.
+
+This is a very pre beta sort of project right now. It should get better soon but still use with great care if actually cutting something.
+
+
+
+
+
+README             : This file.
+
+
+CTH.dxf            : example DXF
+NONAME_0.dxf       : example DXF
+
+
+simpleDXFlib.py    : A simple library to read a DXF file and make the entities avalible to use.
+testingCAD.py      : A simple example of using simpleDXFlib.py. May or maynot work.
+
+
+simpleCAMlib02.py  : A simple library to read a DXF file and make tool paths. It is not at all compleat and can only handle a few entities. 
+linuxCAM.py        : A simple program to open DXF files in linusCNC. I would like to make a use interface that allows the user to set the cut depths, type of operations (profile, pockets, ect). It should deal with tools, offset, cutting speeds and all in a fairly simple (limitied) way.
+
+ToDo:
+- Make everything more uniform in the way objects are handled and used.
+
+- simpleDXFlib:
+  + Handle more types of entities. (arcs and regular polylines first)
+  + Make editing entities easy.
+  + Save DXF files.
+  + Group lines and arcs into lwpolylines.
+  + Deal with duplicate items and pointless entities (zero radius circles for instance).
+  
+- simpleCAMlib02:
+  + Change the name to just simpleCAMlib (or maybe something else, CTHCam ?)
+  + Group individual cuts into "operations".
+    ++ Add support for tabs.
+    ++ Add support for cutter offsets.
+    ++ Add beter ways to define cut depths.
+    ++ Add pocketing.
+    ++ Add boring.
+  + Group "operations" into a "panel" that defines a bunch of operations into one job.
+
+- linuxCAM
+  + Think more about the name.
+  + Add a user interface.
+    ++ Select and open a dxf.
+    ++ Display and change:
+       +++ cutter information
+       +++ material properties (thickness and feed rate).
+    ++ select and operations and define:
+       +++ operation type (profile, engrave, pocket, ect.)
+       +++ cut depth
+       +++ offset direction
+       +++ add tabs
+    ++ Add translation
+    ++ Add rotation
+    ++ Nesting in general
