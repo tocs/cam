@@ -16,7 +16,8 @@ from simpleCAMlib02 import *
 
 # set following parameters
 # filename = sys.argv[1]
-filename = "/home/tocs/4gary/play/3dSheetCam/cad/ideal/CTH.dxf" # Change to your dxf file
+filename = "/home/tocs/4gary/play/3dSheetCam/cam/NONAME_0.dxf" # Change to your dxf file
+# filename = "/home/tocs/4gary/play/3dSheetCam/cam/CTH.dxf" # Change to your dxf file
 safeHeight = 0.25 # positive hieghts are above the work piece.
 straightFeedRate = 65.0 # set to a resonable feed rate. Inches/Minute
 
@@ -35,11 +36,14 @@ G49	  ;cancel length offset
 G54	  ;coordinate system 1
 G80	  ;cancel motion
 G90 F#1	  ;non-incremental motion
-G94 F%f	  ;feed/minute mode
-
-G0 Z %f   ;move to safe height
-""" % (straightFeedRate, safeHeight)
-
+"""
+feed = FeedRate()
+feed.put(60)
+print feed.get()
+print 
+line = RapidMotion()
+line.put([0.0, 0.0, safeHeight])
+print line.get("Z")
 
 # each dxf entity ("e")  will be an operation (lwpolylines for operations with more than one cut)
 # need to make lwpolylines more like other entities
@@ -47,6 +51,7 @@ G0 Z %f   ;move to safe height
 print "; ENTITIES:"
 
 for e in dxf.ENTITIES.data:    # step through each entity (e)
+    print "; ent type:", e.type
     # for now each operation cuts full depth.
     # for now now cutter offset
     # ui should allow for changes in depth and deal with such things as pockets, offsets, tool diameter, ect
@@ -55,7 +60,7 @@ for e in dxf.ENTITIES.data:    # step through each entity (e)
     startDepth = 0.0
     endDepth = -0.25
     stepDepth = -0.0625
-    cutDepths = numpy.arange(startDepth, endDepth + stepDepth, stepDepth)    
+    cutDepths = list(numpy.arange(startDepth, endDepth + stepDepth, stepDepth))
     initMove = e.get()
 
     # initial cutter position
@@ -68,7 +73,7 @@ for e in dxf.ENTITIES.data:    # step through each entity (e)
     print line.get("XYZ")    
 
     # define cut acording to type of dxf entity
-    if e.type == "Circle":
+    if (e.type == "Circle") or (e.type == "Arc"):
         for d in cutDepths:
             # all the circle are going to be cut counter clock wise for now
             # move to Z depth
@@ -83,6 +88,19 @@ for e in dxf.ENTITIES.data:    # step through each entity (e)
                     centerPt = e.get("centerPt"),
                     direction = "3")
             print arc.get("XYZIJ")
+
+            if e.type == "Arc":
+                    line = RapidMotion()
+                    line.put([0.0, 0.0, safeHeight])
+                    print line.get("Z")
+
+                    line = RapidMotion()
+                    line.put([e.get("startPt")[0], e.get("startPt")[1], safeHeight])
+                    print line.get("XYZ")
+
+                    line = StraightFeed()
+                    line.put([0.0, 0.0, d])
+                    print line.get("Z")
             
     if e.type == "Line":
         # cut from startPt to endPt, 
@@ -164,3 +182,5 @@ print line.get("XYZ")
 print
 
 print EOF
+
+

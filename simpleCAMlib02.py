@@ -1,12 +1,25 @@
 import numpy
 
 EOF = "M2"
+# the panel header text is temporary stuff that goes at the top of the NGC file.
+# it will be handeled better in the Panel class later.
+panelHeaderText = """; Modal settings
+G17	  ;XY plane
+G20	  ;inch mode
+G40	  ;cancel diameter compensation
+G49	  ;cancel length offset
+G54	  ;coordinate system 1
+G80	  ;cancel motion
+G90 F#1	  ;non-incremental motion
+"""
+
 
 class Panel(object):
     def __init__(self):
         self.safeHeight = 0.025
         self.operations = []
         self.onOff = 0
+        
     def loadDXF(self, filename):
         """get all the separate objects in dxf and make an
         operation out of each one"""
@@ -29,15 +42,34 @@ class Operation(object):
     def __init__(self):
         self.name = ""
         self.safeHeight = 0.25
-        self.startDeptht = 0.0
+        self.startDepth = 0.0
         self.endDepth = -0.25
-        self.cutDepth = 0.0625
+        self.cutDepth = -0.0625
+        self.cutDepths = list(numpy.arange(self.startDepth, self.endDepth + self.cutDepth, self.cutDepth))
         self.toolDia = 0.0
         self.feedRate = 0.0
         self.offset = "G40" # -1 left, 0 none , 1 right (which side of cut tool is on)
         self.cuts = []
         self.onOff = 0
-
+    def setSafeHeight(self, height):
+        self.safeHeight = height
+    def setStartDepth(self, depth):
+        self.startDepth = depth
+        self.setCutDepths()
+    def setEndDepth(self, depth):
+        self.endDepth = depth
+        self.setCutDepths()
+    def setCutDepth(self, depth):
+        self.cutDepth = depth
+        self.setCutDepths()
+    def setCutDepths(self, lst = None):
+        if lst:
+            cutDepths = lst
+        else:
+            cutDepths = list(numpy.arange(self.startDepth, self.endDepth + self.cutDepth, self.cutDepth))
+    def addCut(self, cut):
+        self.cust.append(cut)
+        
 class Cut(object):
     def __init__(self):
         self.onOff = 0
@@ -70,7 +102,6 @@ class RapidMotion(Cut):
     def put(self, endPt):
         self.endPt = self.flat_to3D(endPt)
 
-        
 class StraightFeed(Cut):
     def __init__(self):
         Cut.__init__(self)
@@ -83,8 +114,8 @@ class StraightFeed(Cut):
 class Arc(Cut):
     def __init__(self):
         Cut.__init__(self)        
-        self.direction = "2" # 2 CW , 3 CCW
         self.format = "G%s"
+        self.direction = "2" # 2 CW , 3 CCW        
         self.formatI = " I %f"
         self.formatJ = " J %f"
         self.formatK = " K %f"
@@ -114,6 +145,21 @@ class Arc(Cut):
         if axis.find("K") != -1:
             line = line + self.formatK % self.offset[2]
         return(line)
+
+
+# Other G code objects
+# feed rate
+class FeedRate(object):
+    def __init__(self):
+        self.format = "G94 F%f	  ;feed/minute mode"
+        self.feedRate = 35
+    def put(self, rate):
+        self.feedRate = rate
+    def get(self):
+        line = self.format % self.feedRate
+        return(line)
+
+
 if __name__ == "__main__":
     one =  RapidMotion()
     one.put([1.0, 1.0])

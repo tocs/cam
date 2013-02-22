@@ -224,11 +224,18 @@ class Line(Entity):
                 self.layer = dxfText[line + 1]
             if dxfText[line].rstrip() == " 62":
                 self.color = int(dxfText[line + 1])
-            if dxfText[line].rstrip() == " 31":
-                self.endPt[2] = float(dxfText[line + 1])                                                
+
         self.centerPt = list((numpy.array(self.startPt) + numpy.array(self.endPt)) / 2)
-        # startAngle
-        # endAngle
+
+    def put(self, startPt = None, endPt = None, layer = None, color = None):
+        if startPt:
+            self.startPt = startPt
+        if endPt:
+            self.endPt = endPt
+        if layer:
+            self.layerPt = layer
+        if color:
+            self.colorPt = color
 
 class LWPolyline(Entity):
     def __init__(self):
@@ -362,7 +369,39 @@ class Circle(Entity):
 class Arc (Entity):
     def __init__(self):
         Entity.__init__(self)
+    def load(self, dxfText):
+        """load dxf text
+        dxfText : list of string out of dxf file."""
+        for line in xrange(2, len(dxfText)):
+            # print  '"' + dxfText[line] + '"'
+            if dxfText[line].rstrip() == " 10":
+                self.centerPt[0] = float(dxfText[line + 1])
+            if dxfText[line].rstrip() == " 20":
+                self.centerPt[1] = float(dxfText[line + 1])
+            if dxfText[line].rstrip() == " 30":
+                self.centerPt[2] = float(dxfText[line + 1])
+            if dxfText[line].rstrip() == " 40":
+                self.radius = float(dxfText[line + 1])
+            if dxfText[line].rstrip() == " 50":
+                self.startAngle = float(dxfText[line + 1])
+            if dxfText[line].rstrip() == " 51":
+                self.endAngle = float(dxfText[line + 1])
+            if dxfText[line].rstrip() == "  8":
+                self.layer = dxfText[line + 1]
+            if dxfText[line].rstrip() == " 62":
+                self.color = int(dxfText[line + 1])
+        
+        x = (self.radius * (numpy.cos(numpy.radians(self.startAngle))) + self.centerPt[0])
+        y = (self.radius * (numpy.sin(numpy.radians(self.startAngle))) + self.centerPt[1])
+        z = self.centerPt[2]
+        self.startPt = [x, y, z]
+        x = (self.radius * (numpy.cos(numpy.radians(self.endAngle))) + self.centerPt[0])
+        y = (self.radius * (numpy.sin(numpy.radians(self.endAngle))) + self.centerPt[1])
+        self.endPt = [x, y, z]            
 
+
+
+        
 class Point(Entity):
     def __init__(self):
         Entity.__init__(self)
