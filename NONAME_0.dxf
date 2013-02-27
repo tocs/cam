@@ -453,11 +453,11 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2456345.831504618
+2456350.73185184
   9
 $TDUUPDATE
  40
-2456346.039837963
+2456350.940185185
   9
 $TDINDWG
  40
@@ -465,7 +465,7 @@ $TDINDWG
   9
 $TDUSRTIMER
  40
-2456346.038622685
+2456350.934861111
   9
 $USRTIMER
  70
@@ -505,7 +505,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-1CF
+250
   9
 $SURFTAB1
  70
@@ -1271,7 +1271,7 @@ LAYER
 100
 AcDbSymbolTable
  70
-     4
+     5
   0
 LAYER
   5
@@ -1366,6 +1366,34 @@ lwpolyline
      0
  62
      3
+  6
+Continuous
+370
+    -3
+390
+F
+1001
+AcAecLayerStandard
+1000
+
+1000
+
+  0
+LAYER
+  5
+1EB
+330
+2
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+lwpolyline_offset_left
+ 70
+     0
+ 62
+     7
   6
 Continuous
 370
@@ -1721,7 +1749,7 @@ LWPOLYLINE
 100
 AcDbEntity
   8
-0
+lwpolyline_offset_left
 100
 AcDbPolyline
  90
@@ -1755,7 +1783,7 @@ LWPOLYLINE
 100
 AcDbEntity
   8
-0
+lwpolyline
 100
 AcDbPolyline
  90
@@ -1797,7 +1825,7 @@ LINE
 100
 AcDbEntity
   8
-0
+line
 100
 AcDbLine
  10
@@ -1821,7 +1849,7 @@ LINE
 100
 AcDbEntity
   8
-0
+line
 100
 AcDbLine
  10
@@ -1845,7 +1873,7 @@ CIRCLE
 100
 AcDbEntity
   8
-0
+circle
 100
 AcDbCircle
  10
@@ -1865,7 +1893,7 @@ CIRCLE
 100
 AcDbEntity
   8
-0
+circle
 100
 AcDbCircle
  10
@@ -1885,7 +1913,7 @@ ARC
 100
 AcDbEntity
   8
-0
+circle
 100
 AcDbCircle
  10
@@ -1911,7 +1939,7 @@ ARC
 100
 AcDbEntity
   8
-0
+circle
 100
 AcDbCircle
  10
@@ -1928,6 +1956,30 @@ AcDbArc
 270.0
  51
 90.0
+  0
+LINE
+  5
+1CF
+330
+1F
+100
+AcDbEntity
+  8
+line
+100
+AcDbLine
+ 10
+1.25
+ 20
+1.25
+ 30
+0.0
+ 11
+1.25
+ 21
+0.75
+ 31
+0.0
   0
 ENDSEC
   0
@@ -1983,7 +2035,7 @@ E1
   3
 DWGPROPS
 350
-1CD
+24F
   0
 DICTIONARY
   5
@@ -2003,7 +2055,7 @@ ACAD_LAYERSTATES
   3
 ACLYDICTIONARY
 360
-16C
+24E
   0
 DICTIONARY
   5
@@ -2297,7 +2349,7 @@ AcDbDictionary
   3
 CANNOSCALE
 350
-1CE
+247
   3
 DIMASSOC
 350
@@ -2325,7 +2377,7 @@ AcDbDictionary
   0
 XRECORD
   5
-1CD
+24F
 102
 {ACAD_REACTORS
 330
@@ -2379,7 +2431,7 @@ DWGPROPS COOKIE
  41
 2452643.063384271
  42
-2456346.039837963
+2456350.940185185
   1
 
  90
@@ -2404,10 +2456,38 @@ AcDbDictionary
 ARGON_LAYERP_1
 350
 167
+  3
+ARGON_LAYERP_2
+350
+1EA
+  3
+ARGON_LAYERP_3
+350
+207
+  3
+ARGON_LAYERP_4
+350
+223
+  3
+ARGON_LAYERP_5
+350
+23F
+  3
+ARGON_LAYERP_6
+350
+244
+  3
+ARGON_LAYERP_7
+350
+249
+  3
+ARGON_LAYERP_8
+350
+24D
   0
 DICTIONARY
   5
-16C
+24E
 102
 {ACAD_REACTORS
 330
@@ -3651,7 +3731,7 @@ AcDbScale
   0
 DICTIONARYVAR
   5
-1CE
+247
 102
 {ACAD_REACTORS
 330
@@ -3728,6 +3808,582 @@ AcDbXrecord
 0
 330
 10
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+  0
+XRECORD
+  5
+1EA
+102
+{ACAD_REACTORS
+330
+166
+102
+}
+330
+166
+100
+AcDbXrecord
+280
+     1
+ 91
+     1023
+301
+
+290
+     0
+302
+0
+330
+10
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+330
+168
+ 90
+        8
+ 62
+     5
+370
+    -3
+331
+16
+  1
+Color_5
+330
+16A
+ 90
+        8
+ 62
+     4
+370
+    -3
+331
+16
+  1
+Color_4
+330
+16B
+ 90
+        8
+ 62
+     3
+370
+    -3
+331
+16
+  1
+Color_3
+  0
+XRECORD
+  5
+207
+102
+{ACAD_REACTORS
+330
+166
+102
+}
+330
+166
+100
+AcDbXrecord
+280
+     1
+ 91
+     1023
+301
+
+290
+     0
+302
+0
+330
+10
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+330
+168
+ 90
+        8
+ 62
+     5
+370
+    -3
+331
+16
+  1
+Color_5
+330
+16A
+ 90
+        8
+ 62
+     4
+370
+    -3
+331
+16
+  1
+Color_4
+330
+16B
+ 90
+        8
+ 62
+     3
+370
+    -3
+331
+16
+  1
+Color_3
+330
+1EB
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+  0
+XRECORD
+  5
+223
+102
+{ACAD_REACTORS
+330
+166
+102
+}
+330
+166
+100
+AcDbXrecord
+280
+     1
+ 91
+     1023
+301
+
+290
+     0
+302
+0
+330
+10
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+330
+168
+ 90
+        8
+ 62
+     5
+370
+    -3
+331
+16
+  1
+Color_5
+330
+16A
+ 90
+        8
+ 62
+     4
+370
+    -3
+331
+16
+  1
+Color_4
+330
+16B
+ 90
+        8
+ 62
+     3
+370
+    -3
+331
+16
+  1
+Color_3
+330
+1EB
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+  0
+XRECORD
+  5
+23F
+102
+{ACAD_REACTORS
+330
+166
+102
+}
+330
+166
+100
+AcDbXrecord
+280
+     1
+ 91
+     1023
+301
+
+290
+     0
+302
+0
+330
+10
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+330
+168
+ 90
+        8
+ 62
+     5
+370
+    -3
+331
+16
+  1
+Color_5
+330
+16A
+ 90
+        8
+ 62
+     4
+370
+    -3
+331
+16
+  1
+Color_4
+330
+16B
+ 90
+        8
+ 62
+     3
+370
+    -3
+331
+16
+  1
+Color_3
+330
+1EB
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+  0
+XRECORD
+  5
+244
+102
+{ACAD_REACTORS
+330
+166
+102
+}
+330
+166
+100
+AcDbXrecord
+280
+     1
+ 91
+     1023
+301
+
+290
+     0
+302
+0
+330
+10
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+330
+168
+ 90
+        8
+ 62
+     5
+370
+    -3
+331
+16
+  1
+Color_5
+330
+16A
+ 90
+        8
+ 62
+     4
+370
+    -3
+331
+16
+  1
+Color_4
+330
+16B
+ 90
+        8
+ 62
+     3
+370
+    -3
+331
+16
+  1
+Color_3
+330
+1EB
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+  0
+XRECORD
+  5
+249
+102
+{ACAD_REACTORS
+330
+166
+102
+}
+330
+166
+100
+AcDbXrecord
+280
+     1
+ 91
+     1023
+301
+
+290
+     0
+302
+0
+330
+10
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+330
+168
+ 90
+        8
+ 62
+     5
+370
+    -3
+331
+16
+  1
+Color_5
+330
+16A
+ 90
+        8
+ 62
+     4
+370
+    -3
+331
+16
+  1
+Color_4
+330
+16B
+ 90
+        8
+ 62
+     3
+370
+    -3
+331
+16
+  1
+Color_3
+330
+1EB
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+  0
+XRECORD
+  5
+24D
+102
+{ACAD_REACTORS
+330
+166
+102
+}
+330
+166
+100
+AcDbXrecord
+280
+     1
+ 91
+     1023
+301
+
+290
+     0
+302
+0
+330
+10
+ 90
+        8
+ 62
+     7
+370
+    -3
+331
+16
+  1
+Color_7
+330
+168
+ 90
+        8
+ 62
+     5
+370
+    -3
+331
+16
+  1
+Color_5
+330
+16A
+ 90
+        8
+ 62
+     4
+370
+    -3
+331
+16
+  1
+Color_4
+330
+16B
+ 90
+        8
+ 62
+     3
+370
+    -3
+331
+16
+  1
+Color_3
+330
+1EB
  90
         8
  62

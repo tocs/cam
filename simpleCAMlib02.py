@@ -1,4 +1,15 @@
-import numpy
+import numpy, os, sys
+
+# http://gnipsel.com/linuxcnc/gui/gui03b.html
+# set up paths to files
+#BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+BASE = "/home/tocs/Desktop/git/linuxcnc"
+libdir = os.path.join(BASE, "lib", "python")
+sys.path.insert(0, libdir)
+datadir = os.path.join(BASE, "share", "linuxcnc")
+xmlname = os.path.join(datadir,"gui3.glade")
+
+import linuxcnc
 
 EOF = "M2"
 # the panel header text is temporary stuff that goes at the top of the NGC file.
@@ -46,30 +57,57 @@ class Operation(object):
         self.endDepth = -0.25
         self.cutDepth = -0.0625
         self.cutDepths = list(numpy.arange(self.startDepth, self.endDepth + self.cutDepth, self.cutDepth))
-        self.toolDia = 0.0
-        self.feedRate = 0.0
-        self.offset = "G40" # -1 left, 0 none , 1 right (which side of cut tool is on)
+
+        self.startPt = None
+        self.endPt = None
+        
+        self.entry = None
+        self.exit = None
+
+        self.tool = None
+        self.straightFeedRate = 0.0
+        self.plungeFeedRate = 0.0        
+        self.offset = Offset("none") # -1 left, 0 none , 1 right (which side of cut tool is on)
         self.cuts = []
-        self.onOff = 0
-    def setSafeHeight(self, height):
-        self.safeHeight = height
-    def setStartDepth(self, depth):
-        self.startDepth = depth
-        self.setCutDepths()
-    def setEndDepth(self, depth):
-        self.endDepth = depth
-        self.setCutDepths()
-    def setCutDepth(self, depth):
-        self.cutDepth = depth
-        self.setCutDepths()
+        self.onOff = 1
     def setCutDepths(self, lst = None):
         if lst:
             cutDepths = lst
         else:
             cutDepths = list(numpy.arange(self.startDepth, self.endDepth + self.cutDepth, self.cutDepth))
-    def addCut(self, cut):
-        self.cust.append(cut)
-        
+    def put(self, name = None, safeHeight = None, startDepth = None, endDepth = None, cutDepth = None,
+               tool = None, startPt = None, offset = None, endPt = None):
+        if name != None:
+            self.name = name
+        if safeHeight != None:
+            self.safeHeight = safeHeight
+        if startDepth != None:
+            self.startDepth = startDepth
+        if endDepth != None:
+            self.endDepth = endDepth
+        if cutDepth != None:
+            self.cutDepth
+        if tool != None:
+            self.tool = tool
+        if startPt != None:
+            self.startPt = startPt
+        if endPt != None:
+            self.endPt
+        if startDepth or endDepth or cutDepth:
+            pass
+        if startPt != None or (endDepth != None):
+            entry = entryMove()
+            if e.get("layer").find("offset") != -1:
+                if e.get("layer").find("right") != -1:  
+                    entry.put(startPt, offset = "right", tool = tool, safeHeight = safeHeight)
+                elif e.get("layer").find("left") != -1:  
+                    entry.put(startPt, offset = "left", tool = tool, safeHeight = safeHeight)
+                else:
+                    entry.put(startPt, safeHeight = safeHeight)
+        print entry.get()
+    
+    def addCut(self):
+        pass
 class Cut(object):
     def __init__(self):
         self.onOff = 0
@@ -159,7 +197,93 @@ class FeedRate(object):
         line = self.format % self.feedRate
         return(line)
 
+class ExitMove(RapidMotion):
+    def __init__(self, height):
+        RapidMotion.__init__(self)
+        self.endPt = [0.0, 0.0, height]
+    def get(self, axis = "Z"):
+        line = self.format
+        if axis.find("X") != -1:
+            line = line + self.formatX % self.endPt[0]
+        if axis.find("Y") != -1:        
+            line = line + self.formatY % self.endPt[1]
+        if axis.find("Z") != -1:            
+            line = line + self.formatZ % self.endPt[2]
+        line = self.getMore(axis, line)
+        return(line)
 
+
+class Offset(object):
+    def __init__(self, offsetType, tool = None):
+        """offset types:
+        right
+        left
+        none"""
+        
+        self.offsetType = offsetType
+        if tool != None:
+            self.tool = tool
+        else:
+            self.tool = 0
+        
+    def get(self):
+        if self.offsetType == "none":
+            off = "G40"
+        elif self.offsetType == "left":                            
+            off = "G41 D%i ; left offset" % self.tool
+        elif self.offsetType == "right":
+            off = "G42 D%i ; right offset" % self.tool
+
+        return(off)
+        
+class entryMove(object):
+    def __init__(self):
+        self.startPt = None 
+        self.tool = None
+        self.toolID = None
+        self.toolDia = None
+        self.offset = Offset("none")
+        self.safeHeight = None
+    def put(self, startPt = None, tool = None, offset = None, safeHeight = None):
+        if startPt != None:
+            self.startPt = startPt
+        if safeHeight != None:
+            self.safeHeight = safeHeight
+        if offset != None and tool != None:
+            self.tool = tool
+            self.toolID = tool.id
+            self.toolDia = numpy.array([tool.diameter, tool.diameter, 0])
+            self.offset = Offset(offsetType = offset, tool = tool.id)
+        
+    def get(self):
+        # calc start
+        # moveto xy offset safe
+        # offset
+        # start xy safe
+        # z
+        move = ""
+        offsetStart = RapidMotion()
+        if (self.offset != None) and (self.offset.offsetType) != "none":
+            offsetPt = numpy.array(self.startPt)
+            offsetPt[2] = self.safeHeight
+            offsetPt = offsetPt + self.toolDia 
+            offsetStart.put(offsetPt)
+            move = move + offsetStart.get() + "\n"
+            move = move + self.offset.get() + "\n"
+        else:
+            offsetPt = numpy.array(self.startPt)
+            offsetPt[2] = self.safeHeight
+            offsetStart.put(offsetPt)
+            move = move + offsetStart.get() + "\n"
+            move = move + "G40\n"
+
+        offsetStart.put(endPt = self.startPt)
+        move = move + offsetStart.get()
+
+
+
+        
+        return(move)
 if __name__ == "__main__":
     one =  RapidMotion()
     one.put([1.0, 1.0])

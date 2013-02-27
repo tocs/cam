@@ -1,8 +1,21 @@
-import numpy
+import numpy, sys
 # ToDo:
 #     - deal with layer information
 #     - argument with get method to get only items wanted (string eg. "startPt", or list eg. ["startPt", "endPt"]
 # main DXF object class
+
+# Colors (Others are avalible but not named)
+BlackWhite = 0
+Red = 1
+Yellow = 2
+Green = 3
+Cyan = 4
+Blue = 5
+Magenta = 6
+White = 7
+Grey = 8
+GreyLt = 9
+
 class DXF(object):
     def __init__(self):
         self.filename = ""
@@ -118,7 +131,6 @@ class ENTITIES(SECTIONS):
             self.data.append(MText())                                    
         if typ == "Text":
             self.data.append(Text())      
-        # print self.data[-1]
         self.data[-1].load(d)
 
         
@@ -139,6 +151,7 @@ class Entity(object):
         self.radius = None
         self.startAngle = None
         self.endAngle = None
+        self.direction = None
         self.verts = []
         self.closed = None
         self.layer = None
@@ -149,7 +162,6 @@ class Entity(object):
         """load dxf text"""
         # print self.type, "no entity specific load code."
         #for line in xrange(2, len(dxfText)):
-        #    print line, '"' + dxfText[line] + '"'            
     def put(self):
         """ 
         use ent.get(option)
@@ -176,6 +188,7 @@ class Entity(object):
              "verts" : self.verts,
              "startAngle" : self.startAngle,
              "endAngle" : self.endAngle,
+             "direction" : self.direction,
              "closed" : self.closed,
              "layer" : self.layer,
              "color" : self.color}
@@ -207,7 +220,6 @@ class Line(Entity):
         """load dxf text
         dxfText : list of string out of dxf file."""
         for line in xrange(2, len(dxfText)):
-            # print  '"' + dxfText[line] + '"'
             if dxfText[line].rstrip() == " 10":
                 self.startPt[0] = float(dxfText[line + 1])
             if dxfText[line].rstrip() == " 20":
@@ -224,9 +236,8 @@ class Line(Entity):
                 self.layer = dxfText[line + 1]
             if dxfText[line].rstrip() == " 62":
                 self.color = int(dxfText[line + 1])
-
         self.centerPt = list((numpy.array(self.startPt) + numpy.array(self.endPt)) / 2)
-
+        self.update()
     def put(self, startPt = None, endPt = None, layer = None, color = None):
         if startPt:
             self.startPt = startPt
@@ -236,7 +247,12 @@ class Line(Entity):
             self.layerPt = layer
         if color:
             self.colorPt = color
-
+        self.update()
+    def update(self):
+        self.centerPt = list((numpy.array(self.startPt) + numpy.array(self.endPt)) / 2)
+        self.startAngle = getAngle(self.startPt, self.centerPt)
+        self.endAngle = getAngle(self.endPt, self.centerPt)
+            
 class LWPolyline(Entity):
     def __init__(self):
         Entity.__init__(self)
@@ -247,7 +263,6 @@ class LWPolyline(Entity):
         y1 = None
         self.elevation = 0.0
         for line in xrange(2, len(dxfText)):
-            # print  '"' + dxfText[line] + '"'
             if dxfText[line].rstrip() == " 10":
                 x1 = float(dxfText[line + 1])
             if dxfText[line].rstrip() == " 20":
@@ -274,11 +289,10 @@ class LWPolyline(Entity):
                 self.verts.append(pt)
                 x1 = None
                 y1 = None
-        self.startPt = self.verts[0]
-        self.endPt = self.verts[-1]
+        self.startPt = self.verts[0][0:3]
+        self.endPt = self.verts[-1][0:3]
         c = numpy.array([0,0,0])
         for v in self.verts:
-            # print v
             c = c + numpy.array(v[0:3])
         self.centerPt = list(c / len(self.verts))
     def asLinesArcs(self):
@@ -300,41 +314,24 @@ class LWPolyline(Entity):
             # for lines
             if (self.verts[e][3] == 0.0):
                 nextPoint = (e + 1) % len(self.verts)
-                ents.append(["LINE", 
-                             self.verts[e][0:3],
-                             self.verts[nextPoint][0:3]])
+                line = Line()
+                line.put(startPt = self.verts[e][0:3], endPt = self.verts[nextPoint][0:3])
+                ents.append(line)
+                             
+                             
             else:
-                nextPoint = (e + 1) % len(self.verts)
+                nextPt = (e + 1) % len(self.verts)
                 # get center using bulge factor
                 bulge = self.verts[e][3]
                 angle = 4 * numpy.arctan(bulge) # included angle for center and 2 end points
-                startPt = numpy.array(self.verts[e][0:3])
-                endPt = numpy.array(self.verts[nextPoint][0:3])
-                cordCenter = (endPt + startPt) / 2.0
-                sP2cCVector = cordCenter - startPt
-                sP2cCMag = numpy.sqrt(sum(pow(sP2cCVector, 2.0)))
-                cC2CircleCMag = sP2cCMag / numpy.tan(angle / 2.0)
-                cC2CircleCUnitV = numpy.array([-1 * sP2cCVector[1], sP2cCVector[0], 0])  / sP2cCMag
-                center = cordCenter + (cC2CircleCUnitV * cC2CircleCMag)
-                if bulge > 0:
-                    direction = 1
-                elif bulge < 0:
-                    direction = -1
-                else:
-                    direction = 0
-                ents.append(["ARC", 
-                             list(startPt),
-                             list(endPt),
-                             list(center),
-                             direction])
-                
-
-                        
+                startPt = self.verts[e][0:3] #numpy.array(self.verts[e][0:3])
+                endPt = self.verts[nextPt][0:3] #numpy.array(self.verts[nextPt][0:3])
+                arc = Arc()
+                arc.put(startPt = startPt, endPt = endPt, bulge = bulge)
+                ents.append(arc)
         # got to be better ways to do this
-        # get rid of single point at end if last move is an arc 
-        if ents[-1][1] == ents[-1][2]:
-            ents.pop(-1)
-
+        #if ents[-1][1] == ents[-1][2]:
+        #    ents.pop(-1)
         return(ents)
 
 class Circle(Entity):
@@ -344,7 +341,6 @@ class Circle(Entity):
         """load dxf text
         dxfText : list of string out of dxf file."""
         for line in xrange(2, len(dxfText)):
-            # print  '"' + dxfText[line] + '"'
             if dxfText[line].rstrip() == " 10":
                 self.centerPt[0] = float(dxfText[line + 1])
             if dxfText[line].rstrip() == " 20":
@@ -364,8 +360,6 @@ class Circle(Entity):
         self.startPt = [self.centerPt[0] + self.radius, self.centerPt[1], self.centerPt[2]]
         self.endPt = self.startPt
 
-
-        
 class Arc (Entity):
     def __init__(self):
         Entity.__init__(self)
@@ -373,7 +367,6 @@ class Arc (Entity):
         """load dxf text
         dxfText : list of string out of dxf file."""
         for line in xrange(2, len(dxfText)):
-            # print  '"' + dxfText[line] + '"'
             if dxfText[line].rstrip() == " 10":
                 self.centerPt[0] = float(dxfText[line + 1])
             if dxfText[line].rstrip() == " 20":
@@ -390,18 +383,55 @@ class Arc (Entity):
                 self.layer = dxfText[line + 1]
             if dxfText[line].rstrip() == " 62":
                 self.color = int(dxfText[line + 1])
-        
-        x = (self.radius * (numpy.cos(numpy.radians(self.startAngle))) + self.centerPt[0])
-        y = (self.radius * (numpy.sin(numpy.radians(self.startAngle))) + self.centerPt[1])
-        z = self.centerPt[2]
-        self.startPt = [x, y, z]
-        x = (self.radius * (numpy.cos(numpy.radians(self.endAngle))) + self.centerPt[0])
-        y = (self.radius * (numpy.sin(numpy.radians(self.endAngle))) + self.centerPt[1])
-        self.endPt = [x, y, z]            
+        self.put(centerPt = self.centerPt, startAngle = self.startAngle, endAngle = self.endAngle, radius = self.radius)
+    def put(self, centerPt = None,startPt = None, endPt = None,
+            startAngle = None, endAngle = None,  radius = None, 
+            direction = None,  layer = None, color = None, bulge = None):
+        if startPt != None:
+            self.startPt = list(startPt)
+            startPt = numpy.array(startPt)
+        if endPt != None:
+            self.endPt = list(endPt)
+            endPt = numpy.array(endPt)            
+        if centerPt != None:
+            self.centerPt = list(centerPt)
+            centerPt = numpy.array(centerPt)            
+        if layer:
+            self.layerPt = layer
+        if color:
+            self.colorPt = color
+        if (startPt != None) and (endPt != None) and (centerPt != None):
+            self.startAngle = getAngle(startPt, centerPt)
+            self.startAngle = getAngle(endPt, centerPt)
+            self.radius = getDist(startPt, centerPt)
+            self.direction = -1
+        if (startAngle != None) and (endAngle != None) and (centerPt != None) and (radius != None):
+            x = (self.radius * (numpy.cos(numpy.radians(self.startAngle))) + self.centerPt[0])
+            y = (self.radius * (numpy.sin(numpy.radians(self.startAngle))) + self.centerPt[1])
+            z = self.centerPt[2]
+            self.startPt = [x, y, z]
+            x = (self.radius * (numpy.cos(numpy.radians(self.endAngle))) + self.centerPt[0])
+            y = (self.radius * (numpy.sin(numpy.radians(self.endAngle))) + self.centerPt[1])
+            self.endPt = [x, y, z]                        
+            self.direction = -1
+        if (startPt != None) and (endPt != None) and (bulge != None):
+            angle = 4 * numpy.arctan(bulge) # included angle for center and 2 end points
+            cordCenter = (endPt + startPt) / 2.0
+            sP2cCVector = cordCenter - startPt
+            sP2cCMag = numpy.sqrt(sum(pow(sP2cCVector, 2.0)))
+            cC2CircleCMag = sP2cCMag / numpy.tan(angle / 2.0)
+            cC2CircleCUnitV = numpy.array([-1 * sP2cCVector[1], sP2cCVector[0], 0])  / sP2cCMag
+            self.centerPt = list(cordCenter + (cC2CircleCUnitV * cC2CircleCMag))
+            self.radius = getDist(startPt, self.centerPt)
+            if bulge > 0:
+                self.direction = 1
+            elif bulge < 0:
+                self.direction = -1
+            else:
+                self.direction = 0
+            # deal with directio
 
-
-
-        
+                
 class Point(Entity):
     def __init__(self):
         Entity.__init__(self)
@@ -429,4 +459,76 @@ class Text(Entity):
         Entity.__init__(self)
 
 
+def getDist(startPt, endPt):
+    startPt = numpy.array(startPt)
+    endPt = numpy.array(endPt)
+    d = abs(pow(startPt, 2) - pow(endPt, 2))
+    dist = numpy.sqrt(sum(d))
+    return(dist)
+def getAngle(startPt, centerPt):
+    startPt = numpy.array(startPt)
+    centerPt = numpy.array(centerPt)
+    startDist = startPt - centerPt
+    quad = numpy.sign(startDist)[0:2]
+    if quad[0] == -1:
+        startAngle = numpy.arctan(startDist[1] / startDist[0])        
+        startAngle = numpy.pi + startAngle
+    elif list(quad) == [1, -1]:
+        startAngle = numpy.arctan(startDist[1] / startDist[0])
+        startAngle = 2 * numpy.pi + startAngle        
+    elif (quad[0] == 0) and (quad[1] == 1):
+        startAngle = numpy.pi / 4
+    elif (quad[0] == 0) and (quad[1] == -1):
+        startAngle = 1.5 * numpy.pi
+    else:
+        startAngle = numpy.arctan(startDist[1] / startDist[0])
+    return(numpy.degrees(startAngle))
 
+
+if __name__ == "__main__":
+    """Todo (fix): 
+            - deal with direction (arcs, polylines with arcs)
+            - add bulge attr in class arc
+              
+    """
+    print getAngle([0,1], [0,0])
+    print getAngle([0,-1], [0,0])
+    
+    print "Making a few dxf entities"
+    print "Line"
+    line = Line()
+    line.put(startPt = [0.0, 0.0, 0.0], endPt = [-1.0, 1.0, 0.0], layer = "Aline", color = 0)
+    print line
+    print line.get()
+    print
+    print "Arc"
+    arc = Arc()
+    arc.put(startPt = [0.0, 0.0, 0.0], endPt = [0.0, 1.0, 0.0], centerPt = [0.0, 0.5, 0.0])
+    
+
+
+
+    dxf = DXF()
+    fiName = sys.argv[1]
+    dxf.open(fiName)
+
+    for e in dxf.ENTITIES.data:
+        print
+        print e.type
+        print '\tstartPt    :', e.get("startPt")
+        print '\tendPt      :', e.get("endPt")
+        print '\tcenterPt   :', e.get("centerPt")
+        print '\tstartAngle :', e.get("startAngle")
+        print '\tendAngle   :', e.get("endAngle") 
+        print '\tdirection  :', e.get("direction")     
+        print '\tverts      :', e.get("verts")
+
+    print
+    print "LWPolylines as Lines and Arcs"
+    for e in dxf.ENTITIES.data:
+        if e.type == "LWPolyline":
+            for k in e.asLinesArcs():
+                print k.type
+                print k.get()
+            print
+    getDist([0,0], [1,1])
