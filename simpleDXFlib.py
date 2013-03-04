@@ -239,13 +239,13 @@ class Line(Entity):
         self.centerPt = list((numpy.array(self.startPt) + numpy.array(self.endPt)) / 2)
         self.update()
     def put(self, startPt = None, endPt = None, layer = None, color = None):
-        if startPt:
+        if startPt != None:
             self.startPt = startPt
-        if endPt:
+        if endPt != None:
             self.endPt = endPt
-        if layer:
+        if layer != None:
             self.layerPt = layer
-        if color:
+        if color != None:
             self.colorPt = color
         self.update()
     def update(self):
@@ -429,6 +429,9 @@ class Arc (Entity):
                 self.direction = -1
             else:
                 self.direction = 0
+        if (self.startAngle == None) and (self.endAngle == None):
+            self.startAngle = getAngle(self.startPt, self.centerPt)
+            self.endAngle = getAngle(self.endPt, self.centerPt)
             # deal with directio
 
                 
@@ -459,10 +462,13 @@ class Text(Entity):
         Entity.__init__(self)
 
 
-def getDist(startPt, endPt):
-    startPt = numpy.array(startPt)
+def getDist(endPt, startPt = None):
+    if startPt == None:
+        startPt = [0] * len(endPt)
+    else:
+        startPt = numpy.array(startPt)
     endPt = numpy.array(endPt)
-    d = abs(pow(startPt, 2) - pow(endPt, 2))
+    d = abs(pow(startPt - endPt, 2))
     dist = numpy.sqrt(sum(d))
     return(dist)
 def getAngle(startPt, centerPt):
@@ -483,7 +489,18 @@ def getAngle(startPt, centerPt):
     else:
         startAngle = numpy.arctan(startDist[1] / startDist[0])
     return(numpy.degrees(startAngle))
+def getIncludedAngle(startPt, endPt, centerPt):
+    centerPt = numpy.array(centerPt)
+    startPt = numpy.array(startPt) - centerPt
+    endPt = numpy.array(endPt) - centerPt
+    startVect = getDist(endPt = numpy.array(startPt))
+    endVect = getDist(endPt = numpy.array(endPt))
+    angle = numpy.arccos(sum(startPt * endPt) / (startVect * endVect))
+    angle = numpy.degrees(angle)
+    angle = angle % 360
+    return(angle)
 
+    
 
 if __name__ == "__main__":
     """Todo (fix): 
