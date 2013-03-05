@@ -1,6 +1,8 @@
 This is a simple and incomplete way to get a dxf into linuxCNC. There is lots to do but as it is useful to me I will keep working on it and it should be useful soon.
 
 Usage:
+	Download all these files and save to one directory.
+
 	Create and save a dxf . Use circles lines, and lwpolylines (2D polylines, they are usually the defalt type of polyline). 
 
 	Edit "linuxCAM.py" with your own favorite text editor.
@@ -36,12 +38,18 @@ CTH.dxf            : example DXF
 NONAME_0.dxf       : example DXF
 
 
-simpleDXFlib.py    : A simple library to read a DXF file and make the entities avalible to use.
+simpleDXFlib.py    : A simple library to read a DXF file and make the entities 
+			avalible to use.
 testingCAD.py      : A simple example of using simpleDXFlib.py. May or maynot work.
 
 
-simpleCAMlib02.py  : A simple library to read a DXF file and make tool paths. It is not at all compleat and can only handle a few entities. 
-linuxCAM.py        : A simple program to open DXF files in linusCNC. I would like to make a use interface that allows the user to set the cut depths, type of operations (profile, pockets, ect). It should deal with tools, offset, cutting speeds and all in a fairly simple (limitied) way.
+simpleCAMlib02.py  : A simple library to read a DXF file and make tool paths. It 
+			is not at all compleat and can only handle a few entities. 
+linuxCAM.py        : A simple program to open DXF files in linusCNC. I would like 
+			to make a use interface that allows the user to set the 
+			cut depths, type of operations (profile, pockets, ect). It 
+			should deal with tools, offset, cutting speeds and all in a f
+			airly simple (limitied) way.
 
 ToDo:
 - Make everything more uniform in the way objects are handled and used.
