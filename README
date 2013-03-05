@@ -1,22 +1,23 @@
 This is a simple and incomplete way to get a dxf into linuxCNC. There is lots to do but as it is useful to me I will keep working on it and it should be useful soon.
 
-Usage:
+Dependencies:
+numpy (http://www.numpy.org/):
+      Numpy has a lot of useful math things in it and is used here. It is pretty simple to install on Ubuntu systems and istructions for installation can be found at http://www.scipy.org/Installing_SciPy/Linux.
+
+Usage: (The useage section is a little out of date. Good luck.)
 	Download all these files and save to one directory.
 
 	Create and save a dxf . Use circles lines, and lwpolylines (2D polylines, they are usually the defalt type of polyline). 
 
-	Edit "linuxCAM.py" with your own favorite text editor.
+	Edit "operation.py" with your own favorite text editor.
 	Change the following items:
 
 	     ++Near top of file:
-	       filename = "/home/username/someMorePath/someFilename.dxf"
+	     	    Change:
+		    	   path ="/home/tocs/allSortsOfPathInformation/cam/%s"	
+			   fiName = path % "CHT.dxf"
 	       safeHeight = 0.25
 	       straightFeedRate = 65.0
-
-	     ++About line 50. Under/in "for e in dxf.ENTITIES.data:"
-	       startDepth = 0.0
-    	       endDepth = -0.25
-    	       stepDepth = -0.0625
 
 	Open linuxCNC.
 	In linuxCNC "File -> Open"
